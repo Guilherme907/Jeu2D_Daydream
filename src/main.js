@@ -638,8 +638,8 @@ scene("level3", ()=>{
                 "=   P=P        P                         P",
                 "=              P       P=P=P=P=P=P=P=P=P=P",
                 "=        P=P=P=P       P                 P",
-                "=        P             P             O   P",
-                "=       =P                               P",
+                "=        P             P                 P",
+                "=       =P                           O   P",
                 "=      P=P                               P",
                 "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P",
             //   012345678901234567890123456789012345678901
