@@ -9,6 +9,8 @@
 //pour la transformation scarabée -> donne un bouclier (peut-être qu'il renvoie les balles en fonction de l'orientation qu'on lui donne). Quand on tiens le bouclier pour se protéger on ne peut pas bouger, mais on peut charger (lentement au début et de plus en plus rapide). Quand on rentre dans un ennemi avec la charge, il ne meurt pas, mais il est stun.
 //Pour introduire ce pouvoir on peut mettre un niveau ou beaucoup d'ennemis ont des armes à distances et on est obligé de se protéger avec ce nouveau bouclier
 
+//Comment faire les import/export pour pas tout avoir sur le même fichier ?
+
 
 
 import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
@@ -54,6 +56,7 @@ let atk_posX = 30;
 let atk_angle = 90;
 let last_scene = ""
 let next_scene = ""
+let ennemi_speed = 4
 
 
 scene("level1", ()=>{
@@ -183,24 +186,24 @@ scene("level1", ()=>{
         //etat d'attaque des ennemis qui vont dans la direction du joueur
         ennemi.onStateUpdate("attack", ()=>{
             if(player.pos.x<ennemi.pos.x){
-                ennemi.pos.x-=3
+                ennemi.pos.x-=ennemi_speed
             }
             else{
-                ennemi.pos.x+=3
+                ennemi.pos.x+=ennemi_speed
             }
         })
     };
     
 
     const level1 = addLevel([
-            "=                            =====         =",
-            "=                            =====         =",
-            "=                            =====         =",
-            "=                            =====         =",
-            "=            ===    ===      =====         =",
+            "=                            ===============",
+            "=                            ===============",
+            "=                            ===============",
+            "=                            ===============",
+            "=            ===    ===      ===============",
             "=            PPP      =          =         =",
             "=        === ====     =          =         =",
-            "=         =  ===    ===          =         =",
+            "=         =  ===    =========    =         =",
             "=   ===   =  PPP      =                  O =",
             "=    =    =  =====    =                    =",
             "P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
@@ -280,7 +283,8 @@ scene("level1", ()=>{
     //faire apparaitre les ennemis
     spawnEnnemies(1400,0)
     spawnEnnemies(1804,0)
-    spawnEnnemies(1900,0)
+    spawnEnnemies(1900,544)
+    spawnEnnemies(2300,544)
 
 })
 
@@ -415,10 +419,10 @@ scene("level2", ()=>{
         //etat d'attaque des ennemis qui vont dans la direction du joueur
         ennemi.onStateUpdate("attack", ()=>{
             if(player.pos.x<ennemi.pos.x){
-                ennemi.pos.x-=3
+                ennemi.pos.x-=ennemi_speed
             }
             else{
-                ennemi.pos.x+=3
+                ennemi.pos.x+=ennemi_speed
             }
         })
         
@@ -426,15 +430,15 @@ scene("level2", ()=>{
     };
     function level2(){
         addLevel([
-                "=               ===                     ",
-                "=          P=P   P      ===             ",
-                "=                P                      ",
-                "=   P=P          P                 ===  ",
-                "=                P                      ",
-                "=       P=P      P   ===                ",
-                "=                P                   O  ",
-                "=                P                      ",
-                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P",
+                "=               ===                     =",
+                "=          P=P   P      ===             =",
+                "=                P                      =",
+                "=   P=P          P            ===       =",
+                "=                P                      =",
+                "=       P=P      P   ===           =    =",
+                "=                P               = = O  =",
+                "=                P             = = =    =",
+                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
             // 1234567890123456789012345678901234567890
             ],{
                 tileWidth: 64,
@@ -482,8 +486,10 @@ scene("level2", ()=>{
             })
     }
 
+    spawnEnnemies(780,-32)
     spawnEnnemies(1630,0)
-    spawnEnnemies(2000,0)
+    //spawnEnnemies(2000,0)
+    spawnEnnemies(1984,192)
 
 })
 
@@ -611,7 +617,7 @@ scene("level3", ()=>{
 
         //détection du joueur à proximité qui fait changer les ennemis d'état
         ennemi.onStateUpdate("idle", () => {
-            if(player.pos.x < ennemi.pos.x+320 && player.pos.x > ennemi.pos.x-320){
+            if(ennemi.pos.x > player.pos.x-384 && ennemi.pos.x < player.pos.x+384 && ennemi.pos.y > player.pos.y-128 && ennemi.pos.y < player.pos.y+128){
                 ennemi.enterState("attack")
             }
         })
@@ -619,10 +625,10 @@ scene("level3", ()=>{
         //etat d'attaque des ennemis qui vont dans la direction du joueur
         ennemi.onStateUpdate("attack", ()=>{
             if(player.pos.x<ennemi.pos.x){
-                ennemi.pos.x-=3
+                ennemi.pos.x-=ennemi_speed
             }
             else{
-                ennemi.pos.x+=3
+                ennemi.pos.x+=ennemi_speed
             }
         })
         
@@ -630,18 +636,18 @@ scene("level3", ()=>{
     };
     function level3(){
         addLevel([
-                "=                                        P",
-                "=                                        P",
-                "=                                        P",
-                "=           P=P=P=P=P=P=P=P=P=P=P=       P",
-                "=              P                         P",
-                "=   P=P        P                         P",
-                "=              P       P=P=P=P=P=P=P=P=P=P",
-                "=        P=P=P=P       P                 P",
-                "=        P             P                 P",
-                "=       =P                           O   P",
-                "=      P=P                               P",
-                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P",
+                "=                                         P",
+                "=                                         P",
+                "=                                         P",
+                "=            P=P=P=P=P=P=P=P=P=P=P=       P",
+                "=               P                         P",
+                "=   =P=P        P                         P",
+                "=               P       P=P=P=P=P=P=P=P=P=P",
+                "=         P=P=P=P       P                 P",
+                "=         P             P                 P",
+                "=        =P                           O   P",
+                "=       P=P                               P",
+                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
             //   012345678901234567890123456789012345678901
             ],{
                 tileWidth: 64,
@@ -689,12 +695,241 @@ scene("level3", ()=>{
             })
     }
 
-    spawnEnnemies(384,0)
-    spawnEnnemies(960,0)
-    spawnEnnemies(1216,0)
-    spawnEnnemies(1536,0)
-    spawnEnnemies(2000,0)
+    
+    spawnEnnemies(864,448)
+    spawnEnnemies(352,320)
+    spawnEnnemies(1056,192)
+    spawnEnnemies(1760,192)
+    spawnEnnemies(2464,384)
+    spawnEnnemies(1888,384)
+    spawnEnnemies(992,704)
+    spawnEnnemies(1632,704)
+    spawnEnnemies(2272,704)
+    
+})
 
+scene("level_test", ()=>{
+    last_scene = "level_test"
+    next_scene = "level_test"
+    atk_cd=false
+
+    level_test()
+
+    //gravité
+    setGravity(1600);
+
+    //joueur
+    const player = add([
+        sprite("kirby"),
+        scale(3),
+        pos(64, 0),
+        area(),
+        body(),
+        state("normal", ["normal", "spider"]),
+        "player"
+    ]);
+    
+
+    //collision joueur-ennemi
+    player.onCollide("ennemi", ()=>{
+        go("lose");
+    })
+
+    //camera sur le joueur
+    player.onUpdate(()=>{
+    setCamPos(player.pos)
+    })
+
+    //collision joueur-goal
+    player.onCollide("goal", ()=>{
+    go("win");
+    })
+
+    //check de la direction dans la quelle le joueur regarde (pour son attaque)
+    onUpdate(()=>{
+        if(player.flipX==false){
+            atk_posX = 30
+            atk_angle = 90
+    }   else {
+            atk_posX = 0
+            atk_angle = -90
+    }
+    })
+    
+    //fonction d'attaque du joueur
+    function attack() {
+        const attack = player.add([
+            rect(10,100),
+            pos(atk_posX, 20),
+            anchor("bot"),
+            area(), // relative to player position
+            animate(),
+            rotate(),
+            scale(0.4),
+            "attack"
+        ]);
+        atk_cd = false
+
+        attack.animate("angle", [0,atk_angle], {
+        duration: 0.20,
+        interpolation: "spline",
+        followMotion: true,
+        }),
+
+        atk_cd = true
+
+        wait(0.20, () =>{
+            destroy(attack)
+        })
+
+        wait(0.80, () =>{
+            atk_cd = false
+        })
+    };
+
+    //Contrôles du joueur
+
+    //sauter
+    onButtonPress("jump", () => {
+        if (player.isGrounded()) {
+            player.jump(jump_force);
+        }
+    });
+
+    //mouvements
+    onButtonDown("move_right", () => {
+        player.flipX = false
+        player.pos.x+=speed;
+    })
+
+    onButtonDown("move_left", () => {
+        player.flipX = true
+        player.pos.x-=speed;
+    });
+
+    //attaquer
+    onButtonPress("attack", ()=>{
+        if(atk_cd==false){attack()}
+    })
+
+    //Ennemis
+    
+    //fonction qui fait apparaitres des ennemis et qui contient leur propriétés
+    function spawnEnnemies(x,y){
+        const ennemi = add(
+            [
+            rect(48, 64),
+            area(),
+            body({}),
+            outline(4),
+            anchor("botleft"),
+            color(255,0,0),
+            pos(x,y),
+            state("idle", ["idle", "attack"]),
+            "ennemi"    
+            ],
+            )
+        //collision ennemi-attaque du joueur
+        ennemi.onCollide("attack", ()=>{
+            destroy(ennemi);
+            addKaboom(ennemi.pos);
+            shake();
+            }
+        )
+
+        //détection du joueur à proximité qui fait changer les ennemis d'état
+        ennemi.onStateUpdate("idle", () => {
+            if(ennemi.pos.x > player.pos.x-384 && ennemi.pos.x < player.pos.x+384 && ennemi.pos.y > player.pos.y-128 && ennemi.pos.y < player.pos.y+128){
+                ennemi.enterState("attack")
+            }
+        })
+
+        //etat d'attaque des ennemis qui vont dans la direction du joueur
+        ennemi.onStateUpdate("attack", ()=>{
+            if(player.pos.x<ennemi.pos.x){
+                ennemi.pos.x-=ennemi_speed
+            }
+            else{
+                ennemi.pos.x+=ennemi_speed
+            }
+        })
+        
+
+    };
+    function level_test(){
+        addLevel([
+                "=                                         P",
+                "=                                         P",
+                "=                                         P",
+                "=                                         P",
+                "=                                         P",
+                "=                                         P",
+                "=                  P                      P",
+                "=                  P                      P",
+                "=                  P                      P",
+                "=                  P                  O   P",
+                "=                  P                      P",
+                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
+            //   012345678901234567890123456789012345678901
+            ],{
+                tileWidth: 64,
+                tileHeight: 64,
+
+                pos: vec2(0, 0),
+
+                tiles: {
+                    "=": () => [
+                        rect(60,60),
+                        area(),
+                        outline(2),
+                        body({isStatic: true}),
+                        color(127, 200, 255),
+                        tile({isObstacle: true}),
+                        "tile"
+                    ],
+                    "P": () => [
+                        rect(60,60),
+                        area(),
+                        outline(2),
+                        body({isStatic: true}),
+                        color(0, 0, 255),
+                        tile({isObstacle: true}),
+                        "tile"
+                    ],
+                    "O": () => [
+                        rect(60, 120),
+                        area(),
+                        body({isStatic: true}),
+                        outline(4),
+                        color(0,255,0),
+                        "goal"
+                    ],
+                    "X": ()=>[
+                        rect(48, 64),
+                        area(),
+                        body({}),
+                        outline(4),
+                        anchor("botleft"),
+                        color(255,0,0),
+                        pos(x,y),
+                        state("attack"),
+                        "ennemi"    
+                    ],
+                }
+            })
+    }
+
+    /*
+    spawnEnnemies(864,448)
+    spawnEnnemies(352,320)
+    spawnEnnemies(1056,192)
+    spawnEnnemies(1760,192)
+    spawnEnnemies(2464,384)
+    spawnEnnemies(1888,384)
+    spawnEnnemies(992,704)
+    spawnEnnemies(1632,704)
+    spawnEnnemies(2272,704)
+    */
 })
 
 scene("win", ()=>{
