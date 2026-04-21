@@ -46,13 +46,13 @@ import * as levels from "./niveau1.js"
 */
 
 
-loadSprite("kirby", "sprites/kirby2.png");
+loadSprite("player", "sprites/protagoniste.png");
 
 let jump_force = 800
 let speed = 10;
 let atk_cd = false
 //let posX = 0
-let atk_posX = 30;
+let atk_posX = 64;
 let atk_angle = 90;
 let last_scene = ""
 let next_scene = ""
@@ -68,7 +68,7 @@ scene("level1", ()=>{
     atk_cd=false
 
     //joueur
-    const player = add([sprite("kirby"),scale(3), pos(64, 0), area(), body(), "player"]);
+    const player = add([sprite("player"),scale(1.5), pos(64, 0), area(), body(), "player"]);
 
     //collision joueur-ennemi
     player.onCollide("ennemi", ()=>{
@@ -88,7 +88,7 @@ scene("level1", ()=>{
     //check de la direction dans la quelle le joueur regarde (pour son attaque)
     onUpdate(()=>{
         if(player.flipX==false){
-            atk_posX = 30
+            atk_posX = 64
             atk_angle = 90
     }   else {
             atk_posX = 0
@@ -99,8 +99,8 @@ scene("level1", ()=>{
     //fonction d'attaque du joueur
     function attack() {
         const attack = player.add([
-            rect(10,100),
-            pos(atk_posX, 20),
+            rect(15,150),
+            pos(atk_posX, 30),
             anchor("bot"),
             area(), // relative to player position
             animate(),
@@ -301,7 +301,7 @@ scene("level2", ()=>{
     
 
     //joueur
-    const player = add([sprite("kirby"),scale(3), pos(64, 0), area(), body(), "player"]);
+    const player = add([sprite("player"),scale(1.5), pos(64, 0), area(), body(), "player"]);
 
     //collision joueur-ennemi
     player.onCollide("ennemi", ()=>{
@@ -321,7 +321,7 @@ scene("level2", ()=>{
     //check de la direction dans la quelle le joueur regarde (pour son attaque)
     onUpdate(()=>{
         if(player.flipX==false){
-            atk_posX = 30
+            atk_posX = 64
             atk_angle = 90
     }   else {
             atk_posX = 0
@@ -332,8 +332,8 @@ scene("level2", ()=>{
     //fonction d'attaque du joueur
     function attack() {
         const attack = player.add([
-            rect(10,100),
-            pos(atk_posX, 20),
+            rect(15,150),
+            pos(atk_posX, 30),
             anchor("bot"),
             area(), // relative to player position
             animate(),
@@ -506,7 +506,7 @@ scene("level3", ()=>{
     
 
     //joueur
-    const player = add([sprite("kirby"),scale(3), pos(64, 0), area(), body(), "player"]);
+    const player = add([sprite("player"),scale(1.5), pos(64, 0), area(), body(), "player"]);
 
     //collision joueur-ennemi
     player.onCollide("ennemi", ()=>{
@@ -526,7 +526,7 @@ scene("level3", ()=>{
     //check de la direction dans la quelle le joueur regarde (pour son attaque)
     onUpdate(()=>{
         if(player.flipX==false){
-            atk_posX = 30
+            atk_posX = 64
             atk_angle = 90
     }   else {
             atk_posX = 0
@@ -537,8 +537,8 @@ scene("level3", ()=>{
     //fonction d'attaque du joueur
     function attack() {
         const attack = player.add([
-            rect(10,100),
-            pos(atk_posX, 20),
+            rect(15,150),
+            pos(atk_posX, 30),
             anchor("bot"),
             area(), // relative to player position
             animate(),
