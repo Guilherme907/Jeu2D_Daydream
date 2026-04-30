@@ -9,13 +9,13 @@
 //pour la transformation scarabée -> donne un bouclier (peut-être qu'il renvoie les balles en fonction de l'orientation qu'on lui donne). Quand on tiens le bouclier pour se protéger on ne peut pas bouger, mais on peut charger (lentement au début et de plus en plus rapide). Quand on rentre dans un ennemi avec la charge, il ne meurt pas, mais il est stun.
 //Pour introduire ce pouvoir on peut mettre un niveau ou beaucoup d'ennemis ont des armes à distances et on est obligé de se protéger avec ce nouveau bouclier
 
-//Comment faire les import/export pour pas tout avoir sur le même fichier ?
-
-
-
 import kaplay from "https://unpkg.com/kaplay@3001.0.19/dist/kaplay.mjs";
+import { loquacePlugin } from "./loquace.js"
 kaplay({
     buttons:{
+        passer:{
+            keyboard:["space"],
+        },
         jump:{
             keyboard: ["space", "up"],
             gamepad: "south"
@@ -31,905 +31,147 @@ kaplay({
         attack:{
             keyboard: "e",
             gamepad:"west"
-        }
-        
-    }
-    
+        },
+        defend:{
+            keyboard: "q"
+        },
+        beatle:{
+            keyboard: "1"
+        },
+    },
+    plugins: [loquacePlugin],
 });
 
+layers(["background", "game", "foreground"], "game")
+
+loquace.init();
+
+loquace.characters({
+    r:{
+        name:"Robot",
+        dialogType:"vn",
+    }
+})
 
 //imports
-/*
-import * as ennemies from "./ennemies.js"
+
+import * as ennemis from "./ennemis.js"
 import * as player from "./player.js"
-import * as levels from "./niveau1.js"
-*/
+import * as level_test from "./levels/level_test.js"
+import * as level1 from "./levels/level1.js"
+import * as level2 from "./levels/level2.js"
+import * as level3 from "./levels/level3.js"
+
 
 
 loadSprite("player", "sprites/protagoniste.png");
+loadSprite("background", "sprites/background.png")
 
-let jump_force = 800
-let speed = 10;
-let atk_cd = false
-//let posX = 0
-let atk_posX = 64;
-let atk_angle = 90;
 let last_scene = ""
 let next_scene = ""
-let ennemi_speed = 4
 
 
 scene("level1", ()=>{
+
+    //charger niveau
+    level1.level1()
 
     //gravité
     setGravity(1600);
     last_scene = "level1"
     next_scene = "level2"
-    atk_cd=false
 
     //joueur
-    const player = add([sprite("player"),scale(1.5), pos(64, 0), area(), body(), "player"]);
+    player.addPlayer(64,576)
 
-    //collision joueur-ennemi
-    player.onCollide("ennemi", ()=>{
-        go("lose");
-    })
-
-    //camera sur le joueur
-    player.onUpdate(()=>{
-    setCamPos(player.pos)
-    })
-
-    //collision joueur-goal
-    player.onCollide("goal", ()=>{
-    go("win");
-    })
-
-    //check de la direction dans la quelle le joueur regarde (pour son attaque)
-    onUpdate(()=>{
-        if(player.flipX==false){
-            atk_posX = 64
-            atk_angle = 90
-    }   else {
-            atk_posX = 0
-            atk_angle = -90
-    }
-    })
-    
-    //fonction d'attaque du joueur
-    function attack() {
-        const attack = player.add([
-            rect(15,150),
-            pos(atk_posX, 30),
-            anchor("bot"),
-            area(), // relative to player position
-            animate(),
-            rotate(),
-            scale(0.4),
-            "attack"
-        ]);
-
-        attack.animate("angle", [0,atk_angle], {
-        duration: 0.20,
-        interpolation: "spline",
-        followMotion: true,
-        }),
-
-        atk_cd = true
-
-        wait(0.20, () =>{
-            destroy(attack)
-        })
-
-        wait(0.80, () =>{
-            atk_cd = false
-        })
-    };
-
-    //Contrôles du joueur
-
-    //sauter
-    onButtonPress("jump", () => {
-        if (player.isGrounded()) {
-            player.jump(jump_force);
-        }
-    });
-
-    //mouvements
-    onButtonDown("move_right", () => {
-        player.flipX = false
-        player.pos.x+=speed;
-    })
-
-    onButtonDown("move_left", () => {
-        player.flipX = true
-        player.pos.x-=speed;
-    });
-
-    //attaquer
-    onButtonPress("attack", ()=>{
-        if(atk_cd==false){attack()}
-    })
-
-    //Ennemis
-    
-    //fonction qui fait apparaitres des ennemis et qui contient leur propriétés
-    function spawnEnnemies(x,y){
-        const ennemi = level1.spawn(
-            [
-            rect(48, 64),
-            area(),
-            body({}),
-            outline(4),
-            anchor("botleft"),
-            color(255,0,0),
-            pos(x,y),
-            state("idle", ["idle", "attack"]),
-            "ennemi"    
-            ],
-            )
-        //collision ennemi-attaque du joueur
-        ennemi.onCollide("attack", ()=>{
-            destroy(ennemi);
-            addKaboom(ennemi.pos);
-            shake();
-            }
-        )
-
-        //détection du joueur à proximité qui fait changer les ennemis d'état
-        ennemi.onStateUpdate("idle", () => {
-            if(player.pos.x < ennemi.pos.x+360 && player.pos.x > ennemi.pos.x-360){
-                ennemi.enterState("attack")
-            }
-        })
-
-        //etat d'attaque des ennemis qui vont dans la direction du joueur
-        ennemi.onStateUpdate("attack", ()=>{
-            if(player.pos.x<ennemi.pos.x){
-                ennemi.pos.x-=ennemi_speed
-            }
-            else{
-                ennemi.pos.x+=ennemi_speed
-            }
-        })
-    };
-    
-
-    const level1 = addLevel([
-            "=                            ===============",
-            "=                            ===============",
-            "=                            ===============",
-            "=                            ===============",
-            "=            ===    ===      ===============",
-            "=            PPP      =          =         =",
-            "=        === ====     =          =         =",
-            "=         =  ===    =========    =         =",
-            "=   ===   =  PPP      =                  O =",
-            "=    =    =  =====    =                    =",
-            "P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
-        //   1234567890123456789012345678901234567890
-        ],{
-            tileWidth: 64,
-            tileHeight: 64,
-
-            pos: vec2(0, 0),
-
-            tiles: {
-                "=": () => [
-                    rect(60,60),
-                    area(),
-                    outline(2),
-                    body({isStatic: true}),
-                    color(127, 200, 255),
-                    tile({isObstacle: true})
-                ],
-                "P": () => [
-                    rect(60,60),
-                    area(),
-                    outline(2),
-                    body({isStatic: true}),
-                    color(0, 0, 255),
-                    tile({isObstacle: true})
-                ],
-                "O": () => [
-                    rect(60, 120),
-                    area(),
-                    body({isStatic: true}),
-                    outline(4),
-                    color(0,255,0),
-                    "goal"
-                ],
-                "X": () => [
-                    rect(48, 64),
-                    area(),
-                    body({}),
-                    outline(4),
-                    anchor("botleft"),
-                    color(255,0,0),
-                    state("idle", ["idle", "attack"]),
-                    "ennemi"    
-                    ]
-            }
-        })
-    /*
-    const each_ennemy = get("ennemi")
-    each_ennemy.forEach((ennemi) => {
-        let ennemy = ennemi 
-        add(ennemy.onCollide("attack", ()=>{
-            destroy(ennemy);
-            addKaboom(ennemy.pos);
-            shake();
-            }),
-            //détection du joueur à proximité qui fait changer les ennemis d'état
-            ennemy.onStateUpdate("idle", () => {
-                if(player.pos.x < ennemy.pos.x+320 && player.pos.x > ennemy.pos.x-320){
-                    ennemy.enterState("attack")
-                }
-            }),
-
-            //etat d'attaque des ennemis qui vont dans la direction du joueur
-            ennemy.onStateUpdate("attack", ()=>{
-                if(player.pos.x<ennemy.pos.x){
-                    ennemy.pos.x-=3
-                }
-                else{
-                    ennemy.pos.x+=3
-                }
-            }),
-        )
-    })
-    */
-        
     //faire apparaitre les ennemis
-    spawnEnnemies(1400,0)
-    spawnEnnemies(1804,0)
-    spawnEnnemies(1900,544)
-    spawnEnnemies(2300,544)
+    ennemis.spawnEnnemies(1400,0)
+    ennemis.spawnEnnemies(1804,0)
+    ennemis.spawnEnnemies(1900,544)
+    ennemis.spawnEnnemies(2300,544)
 
 })
 
 scene("level2", ()=>{
     last_scene = "level2"
     next_scene = "level3"
-    atk_cd=false
 
-    level2()
+    level2.level2()
 
     //gravité
     setGravity(1600);
 
-    
-
     //joueur
-    const player = add([sprite("player"),scale(1.5), pos(64, 0), area(), body(), "player"]);
+    player.addPlayer(64,448)
 
-    //collision joueur-ennemi
-    player.onCollide("ennemi", ()=>{
-        go("lose");
-    })
-
-    //camera sur le joueur
-    player.onUpdate(()=>{
-    setCamPos(player.pos)
-    })
-
-    //collision joueur-goal
-    player.onCollide("goal", ()=>{
-    go("win");
-    })
-
-    //check de la direction dans la quelle le joueur regarde (pour son attaque)
-    onUpdate(()=>{
-        if(player.flipX==false){
-            atk_posX = 64
-            atk_angle = 90
-    }   else {
-            atk_posX = 0
-            atk_angle = -90
-    }
-    })
-    
-    //fonction d'attaque du joueur
-    function attack() {
-        const attack = player.add([
-            rect(15,150),
-            pos(atk_posX, 30),
-            anchor("bot"),
-            area(), // relative to player position
-            animate(),
-            rotate(),
-            scale(0.4),
-            "attack"
-        ]);
-
-        attack.animate("angle", [0,atk_angle], {
-        duration: 0.20,
-        interpolation: "spline",
-        followMotion: true,
-        }),
-
-        atk_cd = true
-
-        wait(0.20, () =>{
-            destroy(attack)
-        })
-
-        wait(0.80, () =>{
-            atk_cd = false
-        })
-    };
-
-    //Contrôles du joueur
-
-    //sauter
-    onButtonPress("jump", () => {
-        if (player.isGrounded()) {
-            player.jump(jump_force);
-        }
-    });
-
-    //mouvements
-    onButtonDown("move_right", () => {
-        player.flipX = false
-        player.pos.x+=speed;
-    })
-
-    onButtonDown("move_left", () => {
-        player.flipX = true
-        player.pos.x-=speed;
-    });
-
-    //attaquer
-    onButtonPress("attack", ()=>{
-        if(atk_cd==false){attack()}
-    })
-
-    //Ennemis
-    
-    //fonction qui fait apparaitres des ennemis et qui contient leur propriétés
-    function spawnEnnemies(x,y){
-        const ennemi = add(
-            [
-            rect(48, 64),
-            area(),
-            body({}),
-            outline(4),
-            anchor("botleft"),
-            color(255,0,0),
-            pos(x,y),
-            state("idle", ["idle", "attack"]),
-            "ennemi"    
-            ],
-            )
-        //collision ennemi-attaque du joueur
-        ennemi.onCollide("attack", ()=>{
-            destroy(ennemi);
-            addKaboom(ennemi.pos);
-            shake();
-            }
-        )
-
-        //détection du joueur à proximité qui fait changer les ennemis d'état
-        ennemi.onStateUpdate("idle", () => {
-            if(player.pos.x < ennemi.pos.x+360 && player.pos.x > ennemi.pos.x-360){
-                ennemi.enterState("attack")
-            }
-        })
-
-        //etat d'attaque des ennemis qui vont dans la direction du joueur
-        ennemi.onStateUpdate("attack", ()=>{
-            if(player.pos.x<ennemi.pos.x){
-                ennemi.pos.x-=ennemi_speed
-            }
-            else{
-                ennemi.pos.x+=ennemi_speed
-            }
-        })
-        
-
-    };
-    function level2(){
-        addLevel([
-                "=               ===                     =",
-                "=          P=P   P      ===             =",
-                "=                P                      =",
-                "=   P=P          P            ===       =",
-                "=                P                      =",
-                "=       P=P      P   ===           =    =",
-                "=                P               = = O  =",
-                "=                P             = = =    =",
-                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
-            // 1234567890123456789012345678901234567890
-            ],{
-                tileWidth: 64,
-                tileHeight: 64,
-
-                pos: vec2(0, 0),
-
-                tiles: {
-                    "=": () => [
-                        rect(60,60),
-                        area(),
-                        outline(2),
-                        body({isStatic: true}),
-                        color(127, 200, 255),
-                        tile({isObstacle: true})
-                    ],
-                    "P": () => [
-                        rect(60,60),
-                        area(),
-                        outline(2),
-                        body({isStatic: true}),
-                        color(0, 0, 255),
-                        tile({isObstacle: true})
-                    ],
-                    "O": () => [
-                        rect(60, 120),
-                        area(),
-                        body({isStatic: true}),
-                        outline(4),
-                        color(0,255,0),
-                        "goal"
-                    ],
-                    "X": ()=>[
-                        rect(48, 64),
-                        area(),
-                        body({}),
-                        outline(4),
-                        anchor("botleft"),
-                        color(255,0,0),
-                        pos(x,y),
-                        state("attack"),
-                        "ennemi"    
-                    ],
-                }
-            })
-    }
-
-    spawnEnnemies(780,-32)
-    spawnEnnemies(1630,0)
-    //spawnEnnemies(2000,0)
-    spawnEnnemies(1984,192)
+    //faire apparaitre les ennemis
+    ennemis.spawnEnnemies(780,-32)
+    ennemis.spawnEnnemies(1630,0)
+    //ennemis.spawnEnnemies(2000,0)
+    ennemis.spawnEnnemies(1984,192)
 
 })
 
 scene("level3", ()=>{
     last_scene = "level3"
     next_scene = "level1"
-    atk_cd=false
 
-    level3()
+    level3.level3()
 
     //gravité
     setGravity(1600);
 
-    
-
     //joueur
-    const player = add([sprite("player"),scale(1.5), pos(64, 0), area(), body(), "player"]);
-
-    //collision joueur-ennemi
-    player.onCollide("ennemi", ()=>{
-        go("lose");
-    })
-
-    //camera sur le joueur
-    player.onUpdate(()=>{
-    setCamPos(player.pos)
-    })
-
-    //collision joueur-goal
-    player.onCollide("goal", ()=>{
-    go("win");
-    })
-
-    //check de la direction dans la quelle le joueur regarde (pour son attaque)
-    onUpdate(()=>{
-        if(player.flipX==false){
-            atk_posX = 64
-            atk_angle = 90
-    }   else {
-            atk_posX = 0
-            atk_angle = -90
-    }
-    })
-    
-    //fonction d'attaque du joueur
-    function attack() {
-        const attack = player.add([
-            rect(15,150),
-            pos(atk_posX, 30),
-            anchor("bot"),
-            area(), // relative to player position
-            animate(),
-            rotate(),
-            scale(0.4),
-            "attack"
-        ]);
-        atk_cd = false
-
-        attack.animate("angle", [0,atk_angle], {
-        duration: 0.20,
-        interpolation: "spline",
-        followMotion: true,
-        }),
-
-        atk_cd = true
-
-        wait(0.20, () =>{
-            destroy(attack)
-        })
-
-        wait(0.80, () =>{
-            atk_cd = false
-        })
-    };
-
-    //Contrôles du joueur
-
-    //sauter
-    onButtonPress("jump", () => {
-        if (player.isGrounded()) {
-            player.jump(jump_force);
-        }
-    });
-
-    //mouvements
-    onButtonDown("move_right", () => {
-        player.flipX = false
-        player.pos.x+=speed;
-    })
-
-    onButtonDown("move_left", () => {
-        player.flipX = true
-        player.pos.x-=speed;
-    });
-
-    //attaquer
-    onButtonPress("attack", ()=>{
-        if(atk_cd==false){attack()}
-    })
-
-    //Ennemis
-    
-    //fonction qui fait apparaitres des ennemis et qui contient leur propriétés
-    function spawnEnnemies(x,y){
-        const ennemi = add(
-            [
-            rect(48, 64),
-            area(),
-            body({}),
-            outline(4),
-            anchor("botleft"),
-            color(255,0,0),
-            pos(x,y),
-            state("idle", ["idle", "attack"]),
-            "ennemi"    
-            ],
-            )
-        //collision ennemi-attaque du joueur
-        ennemi.onCollide("attack", ()=>{
-            destroy(ennemi);
-            addKaboom(ennemi.pos);
-            shake();
-            }
-        )
-
-        //détection du joueur à proximité qui fait changer les ennemis d'état
-        ennemi.onStateUpdate("idle", () => {
-            if(ennemi.pos.x > player.pos.x-384 && ennemi.pos.x < player.pos.x+384 && ennemi.pos.y > player.pos.y-128 && ennemi.pos.y < player.pos.y+128){
-                ennemi.enterState("attack")
-            }
-        })
-
-        //etat d'attaque des ennemis qui vont dans la direction du joueur
-        ennemi.onStateUpdate("attack", ()=>{
-            if(player.pos.x<ennemi.pos.x){
-                ennemi.pos.x-=ennemi_speed
-            }
-            else{
-                ennemi.pos.x+=ennemi_speed
-            }
-        })
-        
-
-    };
-    function level3(){
-        addLevel([
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=            P=P=P=P=P=P=P=P=P=P=P=       P",
-                "=               P                         P",
-                "=   =P=P        P                         P",
-                "=               P       P=P=P=P=P=P=P=P=P=P",
-                "=         P=P=P=P       P                 P",
-                "=         P             P                 P",
-                "=        =P                           O   P",
-                "=       P=P                               P",
-                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
-            //   012345678901234567890123456789012345678901
-            ],{
-                tileWidth: 64,
-                tileHeight: 64,
-
-                pos: vec2(0, 0),
-
-                tiles: {
-                    "=": () => [
-                        rect(60,60),
-                        area(),
-                        outline(2),
-                        body({isStatic: true}),
-                        color(127, 200, 255),
-                        tile({isObstacle: true})
-                    ],
-                    "P": () => [
-                        rect(60,60),
-                        area(),
-                        outline(2),
-                        body({isStatic: true}),
-                        color(0, 0, 255),
-                        tile({isObstacle: true})
-                    ],
-                    "O": () => [
-                        rect(60, 120),
-                        area(),
-                        body({isStatic: true}),
-                        outline(4),
-                        color(0,255,0),
-                        "goal"
-                    ],
-                    "X": ()=>[
-                        rect(48, 64),
-                        area(),
-                        body({}),
-                        outline(4),
-                        anchor("botleft"),
-                        color(255,0,0),
-                        pos(x,y),
-                        state("attack"),
-                        "ennemi"    
-                    ],
-                }
-            })
-    }
+    player.addPlayer(64,576)
 
     
-    spawnEnnemies(864,448)
-    spawnEnnemies(352,320)
-    spawnEnnemies(1056,192)
-    spawnEnnemies(1760,192)
-    spawnEnnemies(2464,384)
-    spawnEnnemies(1888,384)
-    spawnEnnemies(992,704)
-    spawnEnnemies(1632,704)
-    spawnEnnemies(2272,704)
+    
+    ennemis.spawnEnnemies(864,448)
+    ennemis.spawnEnnemies(352,320)
+    ennemis.spawnEnnemies(1056,192)
+    ennemis.spawnEnnemies(1760,192)
+    ennemis.spawnEnnemies(2464,384)
+    ennemis.spawnEnnemies(1888,384)
+    ennemis.spawnEnnemies(992,704)
+    ennemis.spawnEnnemies(1632,704)
+    ennemis.spawnEnnemies(2272,704)
     
 })
 
 scene("level_test", ()=>{
     last_scene = "level_test"
     next_scene = "level_test"
-    atk_cd=false
 
-    level_test()
+    level_test.level_test()
 
+    onButtonPress("passer",loquace.next);
+    loquace.script([
+    "Hello world from KAPLAY Loquace",
+    "This is a narrator dialog",
+    "r Hello, I am a robot.",
+    ]);
+    /*
+    add([
+        sprite("background"),
+        layer("background"),
+        scale(0.67),
+        pos(0,0),
+    ])
+    */
     //gravité
     setGravity(1600);
 
     //joueur
-    const player = add([
-        sprite("kirby"),
-        scale(3),
-        pos(64, 0),
-        area(),
-        body(),
-        state("normal", ["normal", "spider"]),
-        "player"
-    ]);
+    player.addPlayer(64,640)
     
-
-    //collision joueur-ennemi
-    player.onCollide("ennemi", ()=>{
-        go("lose");
-    })
-
-    //camera sur le joueur
-    player.onUpdate(()=>{
-    setCamPos(player.pos)
-    })
-
-    //collision joueur-goal
-    player.onCollide("goal", ()=>{
-    go("win");
-    })
-
-    //check de la direction dans la quelle le joueur regarde (pour son attaque)
-    onUpdate(()=>{
-        if(player.flipX==false){
-            atk_posX = 30
-            atk_angle = 90
-    }   else {
-            atk_posX = 0
-            atk_angle = -90
-    }
-    })
-    
-    //fonction d'attaque du joueur
-    function attack() {
-        const attack = player.add([
-            rect(10,100),
-            pos(atk_posX, 20),
-            anchor("bot"),
-            area(), // relative to player position
-            animate(),
-            rotate(),
-            scale(0.4),
-            "attack"
-        ]);
-        atk_cd = false
-
-        attack.animate("angle", [0,atk_angle], {
-        duration: 0.20,
-        interpolation: "spline",
-        followMotion: true,
-        }),
-
-        atk_cd = true
-
-        wait(0.20, () =>{
-            destroy(attack)
-        })
-
-        wait(0.80, () =>{
-            atk_cd = false
-        })
-    };
-
-    //Contrôles du joueur
-
-    //sauter
-    onButtonPress("jump", () => {
-        if (player.isGrounded()) {
-            player.jump(jump_force);
-        }
-    });
-
-    //mouvements
-    onButtonDown("move_right", () => {
-        player.flipX = false
-        player.pos.x+=speed;
-    })
-
-    onButtonDown("move_left", () => {
-        player.flipX = true
-        player.pos.x-=speed;
-    });
-
-    //attaquer
-    onButtonPress("attack", ()=>{
-        if(atk_cd==false){attack()}
-    })
-
-    //Ennemis
-    
-    //fonction qui fait apparaitres des ennemis et qui contient leur propriétés
-    function spawnEnnemies(x,y){
-        const ennemi = add(
-            [
-            rect(48, 64),
-            area(),
-            body({}),
-            outline(4),
-            anchor("botleft"),
-            color(255,0,0),
-            pos(x,y),
-            state("idle", ["idle", "attack"]),
-            "ennemi"    
-            ],
-            )
-        //collision ennemi-attaque du joueur
-        ennemi.onCollide("attack", ()=>{
-            destroy(ennemi);
-            addKaboom(ennemi.pos);
-            shake();
-            }
-        )
-
-        //détection du joueur à proximité qui fait changer les ennemis d'état
-        ennemi.onStateUpdate("idle", () => {
-            if(ennemi.pos.x > player.pos.x-384 && ennemi.pos.x < player.pos.x+384 && ennemi.pos.y > player.pos.y-128 && ennemi.pos.y < player.pos.y+128){
-                ennemi.enterState("attack")
-            }
-        })
-
-        //etat d'attaque des ennemis qui vont dans la direction du joueur
-        ennemi.onStateUpdate("attack", ()=>{
-            if(player.pos.x<ennemi.pos.x){
-                ennemi.pos.x-=ennemi_speed
-            }
-            else{
-                ennemi.pos.x+=ennemi_speed
-            }
-        })
-        
-
-    };
-    function level_test(){
-        addLevel([
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                  P                      P",
-                "=                  P                      P",
-                "=                  P                      P",
-                "=                  P                  O   P",
-                "=                  P                      P",
-                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
-            //   012345678901234567890123456789012345678901
-            ],{
-                tileWidth: 64,
-                tileHeight: 64,
-
-                pos: vec2(0, 0),
-
-                tiles: {
-                    "=": () => [
-                        rect(60,60),
-                        area(),
-                        outline(2),
-                        body({isStatic: true}),
-                        color(127, 200, 255),
-                        tile({isObstacle: true}),
-                        "tile"
-                    ],
-                    "P": () => [
-                        rect(60,60),
-                        area(),
-                        outline(2),
-                        body({isStatic: true}),
-                        color(0, 0, 255),
-                        tile({isObstacle: true}),
-                        "tile"
-                    ],
-                    "O": () => [
-                        rect(60, 120),
-                        area(),
-                        body({isStatic: true}),
-                        outline(4),
-                        color(0,255,0),
-                        "goal"
-                    ],
-                    "X": ()=>[
-                        rect(48, 64),
-                        area(),
-                        body({}),
-                        outline(4),
-                        anchor("botleft"),
-                        color(255,0,0),
-                        pos(x,y),
-                        state("attack"),
-                        "ennemi"    
-                    ],
-                }
-            })
-    }
-
     /*
-    spawnEnnemies(864,448)
-    spawnEnnemies(352,320)
-    spawnEnnemies(1056,192)
-    spawnEnnemies(1760,192)
-    spawnEnnemies(2464,384)
-    spawnEnnemies(1888,384)
-    spawnEnnemies(992,704)
-    spawnEnnemies(1632,704)
-    spawnEnnemies(2272,704)
+    const ennemiSpawnPoints=get("ennemiSpawnPoint")
+    for(let i=0;i<ennemiSpawnPoints.length;i++){
+        ennemis.spawnShootingEnnemis(ennemiSpawnPoints[i].pos)
+    }
     */
+
+    ennemis.spawnShootingEnnemis(864,448)
 })
 
 scene("win", ()=>{
