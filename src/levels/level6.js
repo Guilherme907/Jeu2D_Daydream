@@ -1,18 +1,20 @@
-export function level_test(){
+export function level6(){
         let level = addLevel([
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                  P                      P",
-                "=                  P                      P",
-                "=                  P                      P",
-                "=                  P                  O   P",
-                "=    G             P                      P",
+                "P                                          P",
+                "P                                          P",
+                "P                C C C C   G               P",
+                "P      P=P=P=P=P=P=P=P=P=P=P=P=P=P=        P",
+                "P X           P                            P",
+                "PP=           =                            P",
+                "P  P          P                   C       CP",
+                "P   =         =                   =P=P=P=P=P",
+                "P    P=P      P                  P         P",
+                "P          X P                  =          P",
+                "P          =P                  P           P",
+                "P        P=                   =            P",
+                "P       P                                O P",
+                "P      P               C           C   X   P",
                 "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
-            //   012345678901234567890123456789012345678901
             ],{
                 tileWidth: 64,
                 tileHeight: 64,
@@ -49,7 +51,7 @@ export function level_test(){
                     "X": ()=>[
                         rect(0, 0),
                         area(),
-                        "spawnpoint1",     
+                        "spawnpoint1",  
                     ],
                     "C": ()=>[
                         rect(0, 0),
@@ -67,8 +69,9 @@ export function level_test(){
                         area(),
                         anchor("bot"),
                         "dialogue",  
-                    ],
+                    ], 
+
                 }
             })
-            return level;
+            return level
     }

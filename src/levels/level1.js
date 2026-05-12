@@ -1,15 +1,15 @@
 export function level1(){ 
-    addLevel([
-        "=                            ===============",
-        "=                            ===============",
-        "=                            ===============",
-        "=                            ===============",
-        "=            ===    ===      ===============",
-        "=            PPP      =          =         =",
-        "=        === ====     =          =         =",
-        "=         =  ===    =========    =         =",
-        "=   ===   =  PPP      =                  O =",
-        "=    =    =  =====    =                    =",
+    let level = addLevel([
+        "============================================",
+        "=                            =             =",
+        "=                            =             =",
+        "=                     C      =             =",
+        "=            ==========      ===============",
+        "=         G  P        =          =         =",
+        "=        === =        =     C    =         =",
+        "=         =  =        =======    =         =",
+        "=   ===   =  P        =                  O =",
+        "=A   =    =  =        =      C      C      =",
         "P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
     //   1234567890123456789012345678901234567890
     ],{
@@ -26,6 +26,11 @@ export function level1(){
                 body({isStatic: true}),
                 color(127, 200, 255),
                 tile({isObstacle: true})
+            ],
+            "A": ()=>[
+                rect(0, 0),
+                area(),
+                "spawnpoint",
             ],
             "P": () => [
                 rect(60,60),
@@ -52,7 +57,20 @@ export function level1(){
                 color(255,0,0),
                 state("idle", ["idle", "attack"]),
                 "ennemi"    
-                ]
+                ],
+            "C": ()=>[
+                rect(0, 0),
+                area(),
+                "spawnpoint2",
+            ],
+            "G": ()=>[
+                rect(64,300),
+                opacity(0),
+                area(),
+                anchor("bot"),
+                "dialogue",  
+            ],
         }
     })
+    return level
 }

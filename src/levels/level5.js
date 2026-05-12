@@ -1,4 +1,4 @@
-export function level_test(){
+export function level5(){
         let level = addLevel([
                 "=                                         P",
                 "=                                         P",
@@ -6,13 +6,12 @@ export function level_test(){
                 "=                                         P",
                 "=                                         P",
                 "=                                         P",
-                "=                  P                      P",
-                "=                  P                      P",
-                "=                  P                      P",
-                "=                  P                  O   P",
-                "=    G             P                      P",
+                "=                                         P",
+                "=                                         P",
+                "=                                         P",
+                "=                                       O P",
+                "=   G    C C C X         g          Y     P",
                 "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
-            //   012345678901234567890123456789012345678901
             ],{
                 tileWidth: 64,
                 tileHeight: 64,
@@ -49,7 +48,7 @@ export function level_test(){
                     "X": ()=>[
                         rect(0, 0),
                         area(),
-                        "spawnpoint1",     
+                        "spawnpoint1",  
                     ],
                     "C": ()=>[
                         rect(0, 0),
@@ -68,7 +67,15 @@ export function level_test(){
                         anchor("bot"),
                         "dialogue",  
                     ],
+                    "g": ()=>[
+                        rect(64,300),
+                        opacity(0),
+                        area(),
+                        anchor("bot"),
+                        "dialogue1",  
+                    ],                    
+
                 }
             })
-            return level;
+            return level
     }

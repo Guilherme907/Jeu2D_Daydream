@@ -1,18 +1,27 @@
-export function level_test(){
+export function level7(){
         let level = addLevel([
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                  P                      P",
-                "=                  P                      P",
-                "=                  P                      P",
-                "=                  P                  O   P",
-                "=    G             P                      P",
+                "P   A    P                                 P",
+                "P        P                                 P",
+                "P        P                                 P",
+                "P        P                                 P",
+                "P        P                               O P",
+                "P        P                          C      P",
+                "P        P                   P=P=P=P=P=P=P=P",
+                "P        P                   P             P",
+                "P        P                   P             P",
+                "P        P                   P             P",
+                "P        P               C   P             P",
+                "P        P         P=P=P=P=P=P             P",
+                "P        P         P                       P",
+                "P                  P                       P",
+                "P                  P                       P",
+                "P                  P                       P",
+                "P        P=P=P=P=P=P                       P",
+                "P        P                                 P",
+                "P        P                                 P",
+                "P        P                                 P",
+                "PGGGGGGGGP                                 P",
                 "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
-            //   012345678901234567890123456789012345678901
             ],{
                 tileWidth: 64,
                 tileHeight: 64,
@@ -46,10 +55,15 @@ export function level_test(){
                         color(0,255,0),
                         "goal",
                     ],
+                    "A": ()=>[
+                        rect(0, 0),
+                        area(),
+                        "spawnpoint",
+                    ],
                     "X": ()=>[
                         rect(0, 0),
                         area(),
-                        "spawnpoint1",     
+                        "spawnpoint1",  
                     ],
                     "C": ()=>[
                         rect(0, 0),
@@ -62,13 +76,14 @@ export function level_test(){
                         "spawnpoint3",  
                     ],
                     "G": ()=>[
-                        rect(64,300),
+                        rect(0,0),
                         opacity(0),
                         area(),
                         anchor("bot"),
                         "dialogue",  
-                    ],
+                    ], 
+
                 }
             })
-            return level;
+            return level
     }

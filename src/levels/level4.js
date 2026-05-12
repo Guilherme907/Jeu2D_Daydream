@@ -1,17 +1,17 @@
-export function level_test(){
+export function level4(){
         let level = addLevel([
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                                         P",
-                "=                  P                      P",
-                "=                  P                      P",
-                "=                  P                      P",
-                "=                  P                  O   P",
-                "=    G             P                      P",
-                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
+                "=                                               P",
+                "=                                      X        P",
+                "=                                      =P=P=P=P=P",
+                "=                                               P",
+                "=                        X                      P",
+                "=                        =P=P=                  P",
+                "=                        =   =                  P",
+                "=                        =   =                  P",
+                "=                  =P=P=P=   =                  P",
+                "=                  P         =              O   P",
+                "= G              X =         =           C      P",
+                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
             //   012345678901234567890123456789012345678901
             ],{
                 tileWidth: 64,
@@ -49,17 +49,12 @@ export function level_test(){
                     "X": ()=>[
                         rect(0, 0),
                         area(),
-                        "spawnpoint1",     
+                        "spawnpoint1",  
                     ],
                     "C": ()=>[
                         rect(0, 0),
                         area(),
                         "spawnpoint2",  
-                    ],
-                    "Y": ()=>[
-                        rect(0, 0),
-                        area(),
-                        "spawnpoint3",  
                     ],
                     "G": ()=>[
                         rect(64,300),
@@ -67,8 +62,8 @@ export function level_test(){
                         area(),
                         anchor("bot"),
                         "dialogue",  
-                    ],
+                    ],                   
                 }
             })
-            return level;
+            return level
     }
