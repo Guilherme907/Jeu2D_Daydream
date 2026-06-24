@@ -9,8 +9,8 @@ export function level_test(){
                 "=                  P                      P",
                 "=                  P                      P",
                 "=                  P                      P",
-                "=                  P                  O   P",
-                "=    G             P                      P",
+                "=                  P                      P",
+                "=A   G  I   O      P                      P",
                 "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
             //   012345678901234567890123456789012345678901
             ],{
@@ -20,31 +20,42 @@ export function level_test(){
                 pos: vec2(0, 0),
 
                 tiles: {
+                    "A": ()=>[
+                        rect(0, 0),
+                        area(),
+                        "spawnpoint",
+                    ],
                     "=": () => [
-                        rect(60,60),
+                        sprite("tile1"),
                         area(),
                         outline(2),
+                        opacity(0),
                         body({isStatic: true}),
-                        color(127, 200, 255),
                         tile({isObstacle: true}),
                         "tile",
                     ],
                     "P": () => [
-                        rect(60,60),
+                        sprite("tile5"),
                         area(),
-                        outline(2),
+                        scale(1),
+                        //outline(2),
                         body({isStatic: true}),
-                        color(0, 0, 255),
+                        //color(0, 0, 255),
                         tile({isObstacle: true}),
                         "tile",
                     ],
                     "O": () => [
-                        rect(60, 120),
+                        rect(60, 60),
                         area(),
-                        body({isStatic: true}),
-                        outline(4),
-                        color(0,255,0),
+                        anchor("topleft"),
                         "goal",
+                    ],
+                    "I": () => [
+                        rect(64,height()*2),
+                        area(),
+                        anchor("center"),
+                        //"goal",
+                        "door",
                     ],
                     "X": ()=>[
                         rect(0, 0),

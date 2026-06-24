@@ -2,7 +2,7 @@ import * as ennemis from "./ennemis.js"
 import * as main from "./main.js"
 
 let atk_angle = 110;
-let speed = 10;
+let speed = 600;
 let atk_cd = false;
 let jump_force = 800;
 let collision;
@@ -16,6 +16,7 @@ let damage1;
 let damage2;
 export let charging=false;
 export let chargeletal=false;
+let aireborne=false;
 
 
 export function addPlayer(x,y){
@@ -28,7 +29,7 @@ export function addPlayer(x,y){
         sprite("protag"),
         scale(1.5),
         pos(posX, posY),
-        area(),
+        area({ shape: new Polygon([vec2(-16,0), vec2(16,0), vec2(16,64), vec2(-16,64)]) }),
         anchor("center"), 
         doubleJump(), 
         body(),
@@ -45,7 +46,31 @@ export function addPlayer(x,y){
         };
     });
 
-    player.play("idle");
+    let walking=false;
+
+    const playerPlayRun = () => {
+        // obj.play() will reset to the first frame of the animation
+        // so we want to make sure it only runs when the current animation is not "run"
+        if (player.isGrounded() && walking==false) {
+            player.play("walking");
+            walking=true;
+        }
+    };
+
+    const playerPlayIdle = () => {
+        // Only reset to "idle" if player is not holding any of these keys
+        if (player.isGrounded() && !isKeyDown("left") && !isKeyDown("right")) {
+            player.play("idle");
+        }
+    };
+
+
+    onButtonRelease(["move_left", "move_right"], () => {
+        if(currentState!="beatle"&&atk_cd==false){
+            walking=false;
+            playerPlayIdle();
+        }
+    });
 
     collision = player.onCollideUpdate("ennemi", ()=>{
         go("lose");
@@ -68,7 +93,8 @@ export function addPlayer(x,y){
         collision.paused = false;
         bulletCollision.paused = false;
         groundpound.paused=true;
-        speed=10;
+        speed=600;
+        player.use(sprite("protag"));
     });
 
     player.onStateEnter("beatle",()=>{
@@ -77,19 +103,31 @@ export function addPlayer(x,y){
         beatleCollision.paused=false;
         collision.paused = true;
         bulletCollision.paused = true;
-        speed=2;
+        speed=120;
+        player.use(sprite("beatle"))
         if(player.isGrounded()==false&&main.seenLvl6==true){
+            player.play("groundpound")
             groundpound.paused=false;
         }
     })
     //camera sur le joueur
+
+    setCamScale(0.75)
+    
+    //setCamPos(964,-main.ground/4)
+
     player.onUpdate(()=>{
-    setCamPos(player.pos);
+        setCamPos(player.pos);
     });
     
     //collision joueur-goal
     player.onCollide("goal", ()=>{
-        go("win");
+        if(main.seenLvl9==true){
+            go("final");
+        }
+        else{
+            go("win");
+        }
     });
 
     player.onCollide("ennemiattack",()=>{
@@ -107,26 +145,19 @@ export function addPlayer(x,y){
 
     //mouvements
     onButtonDown("move_right", () => {
-        if(charging==false&&player.paused==false){
+        if(charging==false&&player.paused==false&&main.cutscene==false){
             player.flipX = false;
-            player.pos.x+=speed;
-        }
-    })
-
+            player.move(speed,0);
+            playerPlayRun();
+        };
+    });
     onButtonDown("move_left", () => {
-        if(charging==false&&player.paused==false){
-            player.flipX = true
-            player.pos.x-=speed;
+        if(charging==false&&player.paused==false&&main.cutscene==false){
+            player.flipX = true;
+            player.move(-speed,0);
+                playerPlayRun();
         }
     });
-
-    onButtonPress("dodge", async()=>{
-        if(currentState!="beatle"){
-            knockback.paused=false;
-            await wait(0.5);
-            knockback.paused=true;
-        }
-    })
 
     knockback = player.onUpdate(()=>{
         player.pos.x-=640*dt();
@@ -139,24 +170,48 @@ export function addPlayer(x,y){
     });
     charge.paused=true;
 
+    const otherSound=play("chargeSound2",{
+        paused:true,
+        volume:2,
+    })
+
     //attaquer
-    onButtonPress("attack", ()=>{
-        if(currentState!="beatle"&&atk_cd==false){
+    onButtonPress("attack", async()=>{
+        if(currentState!="beatle"&&atk_cd==false&&main.seenLvl0==true){
+            player.play("atk")
+            play("swordSound")
             attack(player);
+            await wait(0.35)
+            if (!isKeyDown("left") && !isKeyDown("right")) {
+                player.play("idle");
+            }
+            else {
+                player.play("walking");
+            }
         };
-        if(currentState=="beatle"&&main.seenLvl5==true){
+        if(currentState=="beatle"&&main.seenLvl5==true&&charging==false&&chargeletal==false){
+            player.use(sprite("beatle"))
+            player.play("charging")
+            let sound = play("chargeSound1",{
+                volume:3,
+            })
             charging=true
             wait(2.5,()=>{
+                sound.stop()
+                player.play("charge")
+                otherSound.paused=false;
                 charge.paused=false;
                 chargeletal=true;
                 wait(2,()=>{
+                    otherSound.stop()
                     charge.paused=true;
                     charging=false;
                     chargeletal=false;
                     knockback.paused=false;
+                    player.use(sprite("protag"))
                     wait(0.1,()=>{
                         knockback.paused=true;
-                        player.enterState("normal");
+                        pressButton("beatle")
                     })
                 })
             })
@@ -164,40 +219,46 @@ export function addPlayer(x,y){
     });
     
     onButtonPress("jump", () => {
-        if (player.isGrounded()&&currentState!="beatle"&&player.paused==false||main.seenLvl7==true&&player.paused==false) {
+        if (player.isGrounded()&&currentState!="beatle"&&player.paused==false&&main.last_scene!="level05"||main.seenLvl7==true&&player.paused==false&&currentState!="beatle"&&main.last_scene!="level05") {
+            play("jumpSound")
             player.doubleJump(jump_force);
+            if(main.seenLvl7){
+                player.play("jump_butterfly");
+            }
+            else{player.play("jump")}
+            aireborne=true;
         }
+
+    player.onGround(() => {
+        if (!isKeyDown("left") && !isKeyDown("right")) {
+            player.play("idle");
+        }
+        else {
+            player.play("walking");
+        }
+    });
+
     })
     onButtonPress("beatle", ()=>{
         if (currentState=="beatle"&&charging==false){
             player.enterState("normal")
+            player.use(sprite("protag"))
         }
         else if(main.seenLvl4==true){
             player.enterState("beatle")
+            player.use(sprite("beatle"))
         }
-    })
-
-    onButtonPress("butterfly",()=>{
-        if(currentState=="butterfly"){
-            player.enterState("normal")
-        }
-        else{
-            player.enterState("butterfly")
-        }
-    })
-
-    player.onStateEnter("butterfly",()=>{
-        console.log("butterfly");
-        currentState="butterfly";
     })
 
     groundpound=player.onUpdate(()=>{
         player.pos.y+=640*dt();
+        player.play("groundpound")
     });
     groundpound.paused=true;
 
     player.onCollide("tile",()=> {
         if(groundpound.paused==false){
+            shake();
             groundpoundattack(player);
             groundpound.paused=true;
             wait(0.7,()=>{
@@ -211,16 +272,21 @@ export function addPlayer(x,y){
 function groundpoundattack(obj){
     damage1 = add([
         area(),
-        rect(20,20),
-        pos(obj.pos.x-32,obj.pos.y+10),
+        sprite("dust"),
+        scale(1.5),
+        pos(obj.pos.x-32,obj.pos.y+48),
         "groundpound"
     ]);
     damage2 = add([
         area(),
-        rect(20,20),
-        pos(obj.pos.x+32,obj.pos.y+10),
+        sprite("dust"),
+        scale(1.5),
+        pos(obj.pos.x+32,obj.pos.y+48),
         "groundpound"
     ]);
+    damage2.flipX=true;
+    damage1.play("standard")
+    damage2.play("standard")
 
     damage1.onUpdate(()=>{
         damage1.pos.x-=8
@@ -236,7 +302,12 @@ function groundpoundattack(obj){
     damage2.onCollide("tile",()=>{
         destroy(damage2)
     });
-
+    damage1.onCollide("ennemi",()=>{
+        destroy(damage1)
+    });
+    damage2.onCollide("ennemi",()=>{
+        destroy(damage2)
+    });
 }
 
 //fonction d'attaque du joueur
@@ -244,6 +315,7 @@ function attack(obj) {
     const attack = obj.add([
         rect(15,200),
         pos(0, 0),
+        opacity(0),
         anchor("bot"),
         area(), // relative to player position
         animate(),

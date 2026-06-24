@@ -1,12 +1,12 @@
 export function level05(){
         let level = addLevel([
-                "P=P=P=P=P=P=P=P=P=P=P",
+                "P                   P",
                 "P                   P",
                 "P                   P",
                 "P                   P",
                 "P                  OP",
-                "PA          G C     P",
-                "=P=P=P=P=P=P=P=P=P=P=",
+                "QA            C   Q P",
+                "23333333333333333334 ",
             ],{
                 tileWidth: 64,
                 tileHeight: 64,
@@ -14,6 +14,56 @@ export function level05(){
                 pos: vec2(0, 0),
 
                 tiles: {
+                    "Q": () => [
+                        rect(60,60),
+                        area(),
+                        opacity(0),
+                        outline(2),
+                        color(127, 200, 255),
+                        tile({isObstacle: true}),
+                        "tree"
+                    ],
+                    "1": () => [
+                        sprite("tile1"),
+                        area(),
+                        outline(2),
+                        body({isStatic: true}),
+                        tile({isObstacle: true}),
+                        "tile",
+                    ],
+                    "2": () => [
+                        sprite("tile2"),
+                        area(),
+                        outline(2),
+                        body({isStatic: true}),
+                        tile({isObstacle: true}),
+                        "tile",
+                    ],
+                    "3": () => [
+                        sprite("tile3"),
+                        area(),
+                        outline(2),
+                        body({isStatic: true}),
+                        tile({isObstacle: true}),
+                        "tile",
+                    ],
+                    "4": () => [
+                        sprite("tile4"),
+                        area(),
+                        outline(2),
+                        body({isStatic: true}),
+                        tile({isObstacle: true}),
+                        "tile",
+                    ],
+                    "5": () => [
+                        sprite("tile5"),
+                        area(),
+                        //outline(2),
+                        body({isStatic: true}),
+                        //color(0, 0, 255),
+                        tile({isObstacle: true}),
+                        "tile",
+                    ],
                     "=": () => [
                         rect(60,60),
                         area(),
@@ -26,6 +76,7 @@ export function level05(){
                     "P": () => [
                         rect(60,60),
                         area(),
+                        opacity(0),
                         outline(2),
                         body({isStatic: true}),
                         color(0, 0, 255),
@@ -36,6 +87,7 @@ export function level05(){
                         rect(60, 120),
                         area(),
                         outline(4),
+                        opacity(0),
                         color(0,255,0),
                         "goal",
                     ],

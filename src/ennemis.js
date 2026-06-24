@@ -12,6 +12,7 @@ let number;
 let atk;
 let turnTowardsPlayer;
 export let ennemiesPaused=false;
+let isBossDead=false;
 
 //Ennemis
 //fonction qui fait apparaitres des ennemis et qui contient leur propriétés
@@ -25,10 +26,10 @@ export function spawnEnnemies(x,y){
         [
         sprite("robot"),
         scale(2.5),
-        area(),
+        area({ shape: new Polygon([vec2(-8,0), vec2(8,0), vec2(8,36), vec2(-8,36)]) }),
         body({}),
         outline(4),
-        anchor("botleft"),
+        anchor("top"),
         timer(),
         pos(x,y),
         state("idle", ["idle","attack","stunned"]),
@@ -59,8 +60,11 @@ export function spawnEnnemies(x,y){
     //détection du joueur à proximité qui fait changer les ennemis d'état
     ennemi.onStateUpdate("idle", async () => {
         if(ennemi.pos.x > playerInfo.pos.x-500 && ennemi.pos.x < playerInfo.pos.x+500 && ennemi.pos.y > playerInfo.pos.y-128 && ennemi.pos.y < playerInfo.pos.y+128){
-            await ennemi.wait(0.5);
+            await ennemi.wait(0.25);
             ennemi.enterState("attack");
+            play("ennemiSound",{
+                volume:0.1,
+            })
             
         }
     })
@@ -124,6 +128,9 @@ export function spawnEnnemies(x,y){
             
         }
     })
+    ennemi.onDestroy(()=>{
+        play("bonk");
+    });
 };
 
 export function spawnShootingEnnemis(x,y){
@@ -134,7 +141,7 @@ export function spawnShootingEnnemis(x,y){
     [
     sprite("rangedrobot"),
     scale(3),
-    area(),
+    area({ shape: new Polygon([vec2(-8,-18), vec2(8,-18), vec2(8,18), vec2(-8,18)]) }),
     body({}),
     outline(4),
     anchor("center"),
@@ -199,36 +206,43 @@ export function spawnShootingEnnemis(x,y){
         };
     });
 
+    ennemi.onDestroy(()=>{
+        play("bonk");
+    });
+
     ennemi.onStateEnter("attack", async ()=>{
 
-        const dir = playerInfo.pos.sub(ennemi.pos).unit();
-        const backDir = ennemi.pos.sub(playerInfo.pos).unit();
+        let playerInfoCenter=add([
+            pos(playerInfo.pos.x,playerInfo.pos.y+48)
+        ])
+
+        const dir = playerInfoCenter.pos.sub(ennemi.pos).unit();
+        const backDir = ennemi.pos.sub(playerInfoCenter.pos).unit();
 
         ennemi.play("shooting");
+        play("shootingSound")
 
         await ennemi.wait(1.5);
         
-
-
         const bullet = add([
             pos(ennemi.pos),
             move(dir, bulletSpeed),
-            rect(12, 12),
+            sprite("laser"),
+            scale(2),
             area({ isSensor: true }),
             offscreen({ destroy: true }),
-            color(BLUE),
             "bullet",
         ]);
 
         bullet.onCollide("player",()=>{
             destroy(bullet)
             const bullet1 = add([
-                pos(playerInfo.pos),
+                pos(playerInfo.pos.x,playerInfo.pos.y+32),
                 move(backDir, bulletSpeed),
-                rect(12, 12),
+                sprite("laser"),
+                scale(2),
                 area({ isSensor: true }),
                 offscreen({ destroy: true }),
-                color(BLUE),
                 "bullet1",
             ]);
             bullet1.onCollide("tile",()=>{
@@ -284,6 +298,10 @@ export function spawnArmoredEnnemies(x,y){
             });  
         })
 
+    ennemi.onDestroy(()=>{
+        play("bonk");
+    });
+
     attackCollision = ennemi.onCollide("attack", ()=>{
         destroy(ennemi);
         addKaboom(ennemi.pos);
@@ -335,12 +353,14 @@ export function spawnBoss(x,y){
     
     const ennemi = add(
         [
-        rect(320, 320),
+        //rect(320, 320),
+        sprite("boss"),
+        scale(5),
         area(),
         body(),
         outline(4),
         anchor("center"),
-        color(255,0,0),
+        //color(255,0,0),
         timer(),
         pos(x,y),
         state("idle", ["idle","attack","stunned"]),
@@ -351,34 +371,39 @@ export function spawnBoss(x,y){
     let damageCounter = 0;
 
     ennemi.onCollide("attack",()=>{
+        shake()
         damageCounter+=1;
-        if(damageCounter==4){
+        if(damageCounter==5){
             ennemi.enterState("stunned")
             destroy(ennemi)
+            isBossDead=true;
         }
     })
 
     const attack = ennemi.add([
-        rect(320,10),
+        sprite("press"),
         area(),
-        outline(4),
+        scale(0.4),
         anchor("center"),
-        color(255,0,0),
-        pos(-384,-160),
+        pos(-55,-32),
         "ennemiattack"
     ]);
 
     ennemi.onStateEnter("attack",async()=>{
-        await wait(2);
+        await wait(1);
+        ennemi.play("idle")
+        await wait(1);
         number=rand(1);
         console.log(number)
         if(number<=0.5){
             atk=bossattack1(attack,ennemi);
-            await wait(2);
+            await wait(1);
             ennemi.enterState("idle");
         }
         else{
             bossattack2(ennemi);
+            await wait(1);
+            ennemi.enterState("idle");
         }
     })
 
@@ -392,90 +417,85 @@ export function spawnBoss(x,y){
 }
 
 function bossattack1(obj,ennemi){
-    
-    atkMove = obj.onUpdate(()=>{
-        obj.pos.y+=475*dt();
-    });
 
-    atkMoveBack = obj.onUpdate(()=>{
-        obj.pos.y-=160*dt();
+    let warning = add([
+        sprite("warning"),
+        scale(4),
+        color(RED),
+        pos(1193,320),
+    ])
+    play("warningSound",{
+        volume:0.3,
     })
     
-    atkMoveBack.paused=true;
-
-    obj.onCollide("tile",()=>{
-        atkMove.paused=true;
-        atkMoveBack.paused=false;
-        wait(2,()=>{
-            atkMoveBack.paused=true;
+    ennemi.play("atk")
+    wait(1,()=>{
+        atkMove = obj.onUpdate(()=>{
+            obj.pos.y+=70*dt();
+        });
+    
+        atkMoveBack = obj.onUpdate(()=>{
+            obj.pos.y-=70*dt();
         })
+
+        atkMoveBack.paused=true;
+    
+        obj.onCollide("tile",()=>{
+            atkMove.paused=true;
+            atkMoveBack.paused=false;
+            wait(0.88,()=>{
+                atkMoveBack.paused=true;
+            })
+        })
+        destroy(warning)
     })
+
 };
 
 function bossattack2(obj){
 
     const playerInfo=get("player")[0];
 
-    const attack = loop(0.25,()=>{
-        const dir = playerInfo.pos.sub(obj.pos).unit()
+    let shooting=true;
 
-        const bullet = add([
-            pos(obj.pos),
-            move(dir, bulletSpeed),
-            rect(12, 12),
-            area({ isSensor: true }),
-            offscreen({ destroy: true }),
-            color(BLUE),
-            "bullet",
-        ]);
-        console.log("coucou")
-
-        bullet.onCollide("player",()=>{
-            destroy(bullet)
-        });
-    },7);
-    attack.then(()=>{
-        obj.enterState("idle");
-    })
-    
-};
-/*export function spawnBossEnnemies(x,y){
-
-    const playerInfo=get("player")[0]
-
-    const ennemi = add(
-        [
-        rect(10, 192),
-        area(),
-        body({}),
-        outline(4),
-        anchor("botleft"),
-        color(255,0,0),
-        rotate(0),
-        animate(),
-        pos(x,y),
-        state("idle", ["idle","attack","stunned"]),
-        "ennemi"    
-        ],
-        )
-
-    ennemi.animate("angle", [0,-90], {
-        duration: 1,
-        loops: 1,
-        direction: "forward",
-        followMotion: true,
-    });
-
-    ennemi.onStateUpdate("idle",() => {
-        if(ennemi.pos.x > playerInfo.pos.x-384 && ennemi.pos.x < playerInfo.pos.x+384 && ennemi.pos.y > playerInfo.pos.y-128 && ennemi.pos.y < playerInfo.pos.y+128){
-            wait(0,()=>{
-                ennemi.enterState("attack");
+    onUpdate(()=>{
+        if(shooting==true){
+            let warning = drawLine({
+                p1:playerInfo.pos,
+                p2:obj.pos,
+                width:4,
+                color: RED
             })
-        }
+        };
     })
 
-    ennemi.onStateEnter("attack",()=>{
-        ennemi.animation.play(); 
+    obj.play("atk")
+
+    wait(1,()=>{
+        if(isBossDead==false){
+            const attack = loop(0.25,()=>{
+
+                const dir = playerInfo.pos.sub(obj.pos).unit()
+
+                const bullet = add([
+                    pos(obj.pos),
+                    move(dir, bulletSpeed),
+                    sprite("laser"),
+                    scale(2),
+                    area({ isSensor: true }),
+                    offscreen({ destroy: true }),
+                    "bullet",
+                ]);
+
+                bullet.onCollide("player",()=>{
+                    destroy(bullet)
+                });
+                
+            },7);
+        }
+        shooting=false;
     })
-}*/
+
+
+};
 

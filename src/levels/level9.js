@@ -1,12 +1,12 @@
 export function level9(){
         let level = addLevel([
-                "P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P",
-                "P                                         P",
-                "P                                         P",
-                "P                                         P",
-                "P                                      B OP",
-                "P                             A           P",
-                "=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=P=",
+                "55555555555555555555555555555",
+                "5                           5",
+                "5                           5",
+                "5                           5",
+                "5                        B  5",
+                "5         A  G           I O5",
+                "55555555555555555555555555555",
             ],{
                 tileWidth: 64,
                 tileHeight: 64,
@@ -14,6 +14,22 @@ export function level9(){
                 pos: vec2(0, 0),
 
                 tiles: {
+                    "G": ()=>[
+                        rect(64,300),
+                        opacity(0),
+                        area(),
+                        anchor("bot"),
+                        "dialogue",  
+                    ],
+                    "5": () => [
+                        sprite("tile5"),
+                        area(),
+                        //outline(2),
+                        body({isStatic: true}),
+                        //color(0, 0, 255),
+                        tile({isObstacle: true}),
+                        "tile",
+                    ],
                     "=": () => [
                         rect(60,60),
                         area(),
@@ -33,11 +49,21 @@ export function level9(){
                         "tile",
                     ],
                     "O": () => [
-                        rect(60, 120),
+                        rect(60,320),
                         area(),
+                        anchor("center"),
+                        opacity(0),
                         outline(4),
                         color(0,255,0),
                         "goal",
+                    ],
+                    "I": () => [
+                        rect(64,height()),
+                        area(),
+                        opacity(0),
+                        anchor("center"),
+                        //"goal",
+                        "door",
                     ],
                     "A": ()=>[
                         rect(0, 0),
