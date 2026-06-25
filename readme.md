@@ -2,7 +2,7 @@ Daydream est un jeu vidéo qui a été développé dans le cadre du cours jeux v
 
 Vous incarnez Sol qui part en quête de libérer la forêt de l'industrialisation par les robots. Dans ce platformer d'action, appuyez-vous sur vos réflexes pour naviguer à travers les niveaux à l'aide de métamorphoses. Sol succombe au moindre coup d'un ennemi, il faudra alors se déplacer précisément et attaquer au bon moment sans quoi il se retrouve sans défense. Tous les niveaux sont courts et servent de checkpoint, il est donc aisé de réssayer en boucle. 
 
-![alt text](image.png)
+![alt text](screenshot.png)
 
 Le jeu a été pensé pour être joué à la manette. Il existe tout de même des contrôles clavier, non-indiqués dans le jeu qui sont les suivants:
 
