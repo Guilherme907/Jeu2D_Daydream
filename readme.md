@@ -1,6 +1,6 @@
 Daydream est un jeu vidéo qui a été développé dans le cadre du cours jeux vidéo 2D dispensé par Loïc Cattani. Il a été codé en javascript avec Kaplay.
 
-Vous incarnez Sol qui part en quête de libérer la forêt de l'industrialisation par les robots. Dans ce platformer d'action, appuyez-vous sur vos réflexes pour naviguer à travers les niveaux à l'aide de métamorphoses.
+Vous incarnez Sol qui part en quête de libérer la forêt de l'industrialisation par les robots. Dans ce platformer d'action, appuyez-vous sur vos réflexes pour naviguer à travers les niveaux à l'aide de métamorphoses. Sol succombe au moindre coup d'un ennemi, il faudra alors se déplacer précisément et attaquer au bon moment sans quoi il se retrouve sans défense. Tous les niveaux sont courts et servent de checkpoint, il est donc aisé de réssayer en boucle. 
 
 ![alt text](image.png)
 
@@ -18,7 +18,9 @@ Transformation : Q / R1
 
 (La touche K provoque un game over dans le cas d'un soft lock ou un bug)
 
-Le jeu est disponible sur itch.io : https://guilherme567.itch.io/daydream
+Il est possible de jouer au jeu sur navigateur, avec vscode par exemple.
+
+Autrement, le jeu est disponible sur itch.io : https://guilherme567.itch.io/daydream
 
 Tous les assets du jeu ont été crées par moi, sauf les sons et musiques :
 alert.wav by danielnieto7 -- https://freesound.org/s/135613/ -- License: Attribution NonCommercial 3.0
